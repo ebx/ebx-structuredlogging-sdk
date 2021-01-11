@@ -1,0 +1,1 @@
+# ebx-structuredlogging-sdk Changelog

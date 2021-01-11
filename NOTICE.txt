@@ -1,0 +1,2 @@
+ebx-structuredlogging-sdk
+Copyright 2020 Echobox

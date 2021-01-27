@@ -1,3 +1,4 @@
+[![Maven Central](https://img.shields.io/maven-central/v/com.echobox/ebx-structuredlogging-sdk.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22com.echobox%22%20AND%20a:%22ebx-structuredlogging-sdk%22) [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://raw.githubusercontent.com/ebx/ebx-structuredlogging-sdk/master/LICENSE) [![Build Status](https://travis-ci.org/ebx/ebx-structuredlogging-sdk.svg?branch=dev)](https://travis-ci.org/ebx/ebx-structuredlogging-sdk)
 # ebx-structuredlogging-sdk
 
 Logging is a critical pillar of service observability. Occasionally it's desirable to

@@ -43,7 +43,7 @@ public class EscalationLogger implements Logger {
   
   private <T> void checkForEscalation(LoggingLevel level, Object... keys) {
     if (trigger.markAndTrigger(level, keys)) {
-      action.escalate();
+      action.escalate(keys);
     }
   }
   

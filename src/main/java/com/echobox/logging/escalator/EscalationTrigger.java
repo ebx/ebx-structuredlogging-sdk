@@ -23,5 +23,12 @@ package com.echobox.logging.escalator;
  * @author eddspencer
  */
 public interface EscalationTrigger {
+  /**
+   * Mark the logging event for the given keys and check if escalation is triggered
+   *
+   * @param level the level
+   * @param keys the keys
+   * @return whether to trigger and escalation
+   */
   boolean markAndTrigger(LoggingLevel level, Object... keys);
 }

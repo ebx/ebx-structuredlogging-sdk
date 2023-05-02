@@ -45,7 +45,7 @@ class EscalationLoggerTest {
   public void notEscalateButTriggered() {
     escalationLogger.debug("This is a test");
     
-    verify(action, times(0)).escalate();
+    verify(action, times(0)).escalate("This is a test");
   }
   
   @Test
@@ -54,7 +54,7 @@ class EscalationLoggerTest {
     
     escalationLogger.trace("This is a {}", "test");
     
-    verify(action).escalate();
+    verify(action).escalate("This is a {}", "test");
   }
   
   @Test
@@ -63,7 +63,7 @@ class EscalationLoggerTest {
   
     escalationLogger.debug("This is a test");
     
-    verify(action).escalate();
+    verify(action).escalate("This is a test");
   }
   
   @Test
@@ -72,7 +72,7 @@ class EscalationLoggerTest {
     
     escalationLogger.info("This is a test");
     
-    verify(action).escalate();
+    verify(action).escalate("This is a test");
   }
   
   @Test
@@ -81,7 +81,7 @@ class EscalationLoggerTest {
     
     escalationLogger.warn("This is a test");
     
-    verify(action).escalate();
+    verify(action).escalate("This is a test");
   }
   
   @Test
@@ -91,7 +91,7 @@ class EscalationLoggerTest {
   
     escalationLogger.error("This is a test", error);
   
-    verify(action).escalate();
+    verify(action).escalate("This is a test", error);
   }
   
 }

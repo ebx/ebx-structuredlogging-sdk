@@ -23,5 +23,11 @@ package com.echobox.logging.escalator;
  * @author eddspencer
  */
 public interface EscalationAction {
-  void escalate();
+  
+  /**
+   * An escalation has been triggered with the given keys
+   *
+   * @param keys the keys
+   */
+  void escalate(Object... keys);
 }

@@ -58,7 +58,7 @@ public class TimeBasedEscalationTrigger implements EscalationTrigger {
   
   @Override
   public boolean markAndTrigger(LoggingLevel level, Object... keys) {
-    final String key = createKey(level, keys);
+    final String key = createEventKey(level, keys);
     final long now = unixTimeNow.get();
     
     final AtomicBoolean escalate = new AtomicBoolean(false);
@@ -85,9 +85,17 @@ public class TimeBasedEscalationTrigger implements EscalationTrigger {
     return escalate.get();
   }
   
-  private String createKey(LoggingLevel level, Object[] keys) {
+  /**
+   * Converts the logging level and objects provided to the logger to a unique key that
+   * identifies the type of event
+   *
+   * @param level the logging level
+   * @param eventArgs the arguments sent to the logging event
+   * @return the unique key for the event
+   */
+  protected String createEventKey(LoggingLevel level, Object[] eventArgs) {
     return String.format("%s::%s", level,
-        Arrays.stream(keys).map(Object::toString).collect(Collectors.joining("_")));
+        Arrays.stream(eventArgs).map(Object::toString).collect(Collectors.joining("_")));
   }
   
   /**

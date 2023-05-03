@@ -38,6 +38,22 @@ class TimeBasedEscalationTriggerTest {
   }
   
   @Test
+  public void allowsEventKeyToBeOverwritten() {
+    trigger = new TimeBasedEscalationTrigger(() -> now, 30, 60) {
+      @Override
+      protected String createEventKey(LoggingLevel level, Object[] eventArgs) {
+        return "same-key";
+      }
+    };
+    
+    assertFalse(trigger.markAndTrigger(LoggingLevel.DEBUG, "event"));
+    now += 30;
+    assertFalse(trigger.markAndTrigger(LoggingLevel.DEBUG, "event"));
+    now += 30;
+    assertTrue(trigger.markAndTrigger(LoggingLevel.DEBUG, "other"));
+  }
+  
+  @Test
   public void resetOnEventEscalation() {
     assertFalse(trigger.markAndTrigger(LoggingLevel.DEBUG, "event"));
     now += 30;
@@ -50,6 +66,15 @@ class TimeBasedEscalationTriggerTest {
     assertFalse(trigger.markAndTrigger(LoggingLevel.DEBUG, "event"));
     now += 10;
     assertTrue(trigger.markAndTrigger(LoggingLevel.DEBUG, "event"));
+  }
+  
+  @Test
+  public void resetWhenEventIsMissed() {
+    assertFalse(trigger.markAndTrigger(LoggingLevel.DEBUG, "event"));
+    now += 30;
+    assertFalse(trigger.markAndTrigger(LoggingLevel.DEBUG, "event"));
+    now += 40;
+    assertFalse(trigger.markAndTrigger(LoggingLevel.DEBUG, "event"));
   }
   
   @Test

@@ -45,12 +45,24 @@ class TimeBasedEscalationTriggerTest {
         return "same-key";
       }
     };
-    
+  
     assertFalse(trigger.markAndTrigger(LoggingLevel.DEBUG, "event"));
     now += 30;
     assertFalse(trigger.markAndTrigger(LoggingLevel.DEBUG, "event"));
     now += 30;
     assertTrue(trigger.markAndTrigger(LoggingLevel.DEBUG, "other"));
+  }
+  
+  @Test
+  public void allowsFilteringOfEventArguments() {
+    trigger = new TimeBasedEscalationTrigger(() -> now, 30, 60)
+        .withEventKeyFilter(arg -> arg instanceof Exception);
+  
+    assertFalse(trigger.markAndTrigger(LoggingLevel.DEBUG, "event1", new Exception("error")));
+    now += 30;
+    assertFalse(trigger.markAndTrigger(LoggingLevel.DEBUG, "event2", new Exception("error")));
+    now += 30;
+    assertTrue(trigger.markAndTrigger(LoggingLevel.DEBUG, "event3", new Exception("error")));
   }
   
   @Test

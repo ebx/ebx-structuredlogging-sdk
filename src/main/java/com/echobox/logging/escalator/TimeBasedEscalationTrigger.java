@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -39,21 +40,32 @@ public class TimeBasedEscalationTrigger implements EscalationTrigger {
   private final Supplier<Long> unixTimeNow;
   private final int minIntervalSecs;
   private final int escalationPeriodSecs;
-  private final Map<String, EventInfo> cache;
+  
+  private final Map<String, EventInfo> cache = new ConcurrentHashMap<>();
+  private Predicate<Object> keyFilter = key -> true;
   
   public TimeBasedEscalationTrigger(Supplier<Long> unixTimeNow, int minIntervalSecs,
       int escalationPeriodSecs) {
     this.unixTimeNow = unixTimeNow;
     this.minIntervalSecs = minIntervalSecs;
     this.escalationPeriodSecs = escalationPeriodSecs;
-    this.cache = new ConcurrentHashMap<>();
   }
   
   public TimeBasedEscalationTrigger(int minIntervalSecs, int escalationPeriodSecs) {
     this.unixTimeNow = () -> System.currentTimeMillis() / 1000;
     this.minIntervalSecs = minIntervalSecs;
     this.escalationPeriodSecs = escalationPeriodSecs;
-    this.cache = new ConcurrentHashMap<>();
+  }
+  
+  /**
+   * Sets a filter to only match specific object arguments when generating the even key
+   *
+   * @param keyFilter the predicate to use to filter arguments for use in event key
+   * @return this
+   */
+  public TimeBasedEscalationTrigger withEventKeyFilter(Predicate<Object> keyFilter) {
+    this.keyFilter = keyFilter;
+    return this;
   }
   
   @Override
@@ -95,7 +107,8 @@ public class TimeBasedEscalationTrigger implements EscalationTrigger {
    */
   protected String createEventKey(LoggingLevel level, Object[] eventArgs) {
     return String.format("%s::%s", level,
-        Arrays.stream(eventArgs).map(Object::toString).collect(Collectors.joining("_")));
+        Arrays.stream(eventArgs).filter(keyFilter).map(Object::toString)
+            .collect(Collectors.joining("_")));
   }
   
   /**

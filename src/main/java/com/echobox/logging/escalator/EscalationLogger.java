@@ -219,8 +219,6 @@ public class EscalationLogger implements Logger {
   
   @Override
   public boolean isInfoEnabled(Marker marker) {
-    checkForEscalation(LoggingLevel.INFO, marker);
-    
     return logger.isInfoEnabled(marker);
   }
   
@@ -381,8 +379,6 @@ public class EscalationLogger implements Logger {
   
   @Override
   public boolean isErrorEnabled(Marker marker) {
-    checkForEscalation(LoggingLevel.ERROR, marker);
-    
     return logger.isErrorEnabled(marker);
   }
   

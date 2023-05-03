@@ -4,6 +4,6 @@
 
 * Initial release
 
-## 1.0.1 (May 2, 2023)
+## 1.1.0 (May 2, 2023)
 
 * Create EscalationLogger class to all for automatic escalation based off of log messages.

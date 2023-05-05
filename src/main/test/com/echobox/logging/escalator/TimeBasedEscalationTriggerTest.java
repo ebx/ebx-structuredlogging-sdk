@@ -13,7 +13,7 @@ class TimeBasedEscalationTriggerTest {
   
   @BeforeEach
   public void setup() {
-    trigger = new TimeBasedEscalationTrigger(() -> now, 30, 60);
+    trigger = new TimeBasedEscalationTrigger(() -> now, 3, 30, 60);
   }
   
   @Test
@@ -38,8 +38,19 @@ class TimeBasedEscalationTriggerTest {
   }
   
   @Test
+  public void doesNotEscalateIfNotEnoughEventsHaveHappened() {
+    trigger = new TimeBasedEscalationTrigger(() -> now, 4, 30, 60);
+    
+    assertFalse(trigger.markAndTrigger(LoggingLevel.DEBUG, "event"));
+    now += 30;
+    assertFalse(trigger.markAndTrigger(LoggingLevel.DEBUG, "event"));
+    now += 30;
+    assertFalse(trigger.markAndTrigger(LoggingLevel.DEBUG, "event"));
+  }
+  
+  @Test
   public void allowsEventKeyToBeOverwritten() {
-    trigger = new TimeBasedEscalationTrigger(() -> now, 30, 60) {
+    trigger = new TimeBasedEscalationTrigger(() -> now, 2, 30, 60) {
       @Override
       protected String createEventKey(LoggingLevel level, Object[] eventArgs) {
         return "same-key";
@@ -55,7 +66,7 @@ class TimeBasedEscalationTriggerTest {
   
   @Test
   public void allowsFilteringOfEventArguments() {
-    trigger = new TimeBasedEscalationTrigger(() -> now, 30, 60)
+    trigger = new TimeBasedEscalationTrigger(() -> now, 2, 30, 60)
         .withEventKeyFilter(arg -> arg instanceof Exception);
   
     assertFalse(trigger.markAndTrigger(LoggingLevel.DEBUG, "event1", new Exception("error")));

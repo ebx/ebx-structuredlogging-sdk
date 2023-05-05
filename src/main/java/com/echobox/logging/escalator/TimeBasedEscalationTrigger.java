@@ -38,21 +38,25 @@ import java.util.stream.Collectors;
 public class TimeBasedEscalationTrigger implements EscalationTrigger {
   
   private final Supplier<Long> unixTimeNow;
+  private final long minEventCount;
   private final int minIntervalSecs;
   private final int escalationPeriodSecs;
   
   private final Map<String, EventInfo> cache = new ConcurrentHashMap<>();
   private Predicate<Object> keyFilter = key -> true;
   
-  public TimeBasedEscalationTrigger(Supplier<Long> unixTimeNow, int minIntervalSecs,
-      int escalationPeriodSecs) {
+  public TimeBasedEscalationTrigger(Supplier<Long> unixTimeNow, long minEventCount,
+      int minIntervalSecs, int escalationPeriodSecs) {
     this.unixTimeNow = unixTimeNow;
+    this.minEventCount = minEventCount;
     this.minIntervalSecs = minIntervalSecs;
     this.escalationPeriodSecs = escalationPeriodSecs;
   }
   
-  public TimeBasedEscalationTrigger(int minIntervalSecs, int escalationPeriodSecs) {
+  public TimeBasedEscalationTrigger(long minEventCount, int minIntervalSecs,
+      int escalationPeriodSecs) {
     this.unixTimeNow = () -> System.currentTimeMillis() / 1000;
+    this.minEventCount = minEventCount;
     this.minIntervalSecs = minIntervalSecs;
     this.escalationPeriodSecs = escalationPeriodSecs;
   }
@@ -77,21 +81,22 @@ public class TimeBasedEscalationTrigger implements EscalationTrigger {
     cache.compute(key, (k, eventInfo) -> {
       // If we have no other events just cache this one
       if (eventInfo == null) {
-        return new EventInfo(now, now);
+        return new EventInfo(now, now, 1);
       }
-      
+  
+      long eventCount = eventInfo.eventCount + 1;
       final boolean escalationPeriodPassed =
           now - eventInfo.firstSeenUnixTime >= escalationPeriodSecs;
       final boolean withinInterval = now - eventInfo.lastSeenUnixTime <= minIntervalSecs;
       
       // Trigger escalation and reset event if enough time has passed
-      if (escalationPeriodPassed && withinInterval) {
+      if (escalationPeriodPassed && withinInterval && eventCount >= minEventCount) {
         escalate.set(true);
         return null;
       }
       
       // Otherwise update event info
-      return new EventInfo(eventInfo.firstSeenUnixTime, now);
+      return new EventInfo(eventInfo.firstSeenUnixTime, now, eventCount);
     });
     
     return escalate.get();
@@ -119,10 +124,12 @@ public class TimeBasedEscalationTrigger implements EscalationTrigger {
   private static class EventInfo {
     private final long firstSeenUnixTime;
     private final long lastSeenUnixTime;
+    private final long eventCount;
     
-    private EventInfo(long firstSeenUnixTime, long lastSeenUnixTime) {
+    private EventInfo(long firstSeenUnixTime, long lastSeenUnixTime, long eventCount) {
       this.firstSeenUnixTime = firstSeenUnixTime;
       this.lastSeenUnixTime = lastSeenUnixTime;
+      this.eventCount = eventCount;
     }
     
     @Override

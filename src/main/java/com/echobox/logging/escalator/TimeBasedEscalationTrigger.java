@@ -94,6 +94,10 @@ public class TimeBasedEscalationTrigger implements EscalationTrigger {
         escalate.set(true);
         return null;
       }
+      // Reset the info if we are outside the minimum interval
+      if (!withinInterval) {
+        return new EventInfo(now, now, 1);
+      }
       
       // Otherwise update event info
       return new EventInfo(eventInfo.firstSeenUnixTime, now, eventCount);

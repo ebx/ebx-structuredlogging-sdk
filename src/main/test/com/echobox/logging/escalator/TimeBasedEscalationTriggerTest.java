@@ -38,6 +38,17 @@ class TimeBasedEscalationTriggerTest {
   }
   
   @Test
+  public void doesNotEscalateIfEnoughTimePassedButFailsMinInterval() {
+    assertFalse(trigger.markAndTrigger(LoggingLevel.DEBUG, "event"));
+    now += 30;
+    assertFalse(trigger.markAndTrigger(LoggingLevel.DEBUG, "event"));
+    now += 40;
+    assertFalse(trigger.markAndTrigger(LoggingLevel.DEBUG, "event"));
+    now += 30;
+    assertFalse(trigger.markAndTrigger(LoggingLevel.DEBUG, "event"));
+  }
+  
+  @Test
   public void doesNotEscalateIfNotEnoughEventsHaveHappened() {
     trigger = new TimeBasedEscalationTrigger(() -> now, 4, 30, 60);
     
@@ -83,11 +94,11 @@ class TimeBasedEscalationTriggerTest {
     assertFalse(trigger.markAndTrigger(LoggingLevel.DEBUG, "event"));
     now += 30;
     assertTrue(trigger.markAndTrigger(LoggingLevel.DEBUG, "event"));
-    now += 10;
+    now += 30;
     assertFalse(trigger.markAndTrigger(LoggingLevel.DEBUG, "event"));
-    now += 50;
+    now += 30;
     assertFalse(trigger.markAndTrigger(LoggingLevel.DEBUG, "event"));
-    now += 10;
+    now += 30;
     assertTrue(trigger.markAndTrigger(LoggingLevel.DEBUG, "event"));
   }
   

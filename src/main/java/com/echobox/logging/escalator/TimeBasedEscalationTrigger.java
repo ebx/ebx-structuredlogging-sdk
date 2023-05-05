@@ -28,10 +28,10 @@ import java.util.stream.Collectors;
 
 /**
  * Implementation of the escalation trigger that triggers and escalation when a particular event
- * has been happening at a given interval for a given period. i.e. has been happening
- * consistently for a period of time.
+ * has been happening at least a minimum amount of times at a given interval for a given period. i
+ * .e. has been happening consistently for a period of time and over X events in that period.
  *
- * Used a {@link ConcurrentHashMap} to store these times in memory.
+ * Uses a {@link ConcurrentHashMap} to store these times in memory.
  *
  * @author eddspencer
  */
@@ -84,16 +84,18 @@ public class TimeBasedEscalationTrigger implements EscalationTrigger {
         return new EventInfo(now, now, 1);
       }
   
-      long eventCount = eventInfo.eventCount + 1;
+      final long eventCount = eventInfo.eventCount + 1;
       final boolean escalationPeriodPassed =
           now - eventInfo.firstSeenUnixTime >= escalationPeriodSecs;
       final boolean withinInterval = now - eventInfo.lastSeenUnixTime <= minIntervalSecs;
+      final boolean eventCountExceeded = eventCount >= minEventCount;
       
-      // Trigger escalation and reset event if enough time has passed
-      if (escalationPeriodPassed && withinInterval && eventCount >= minEventCount) {
+      // Trigger escalation and reset event if enough time has passed and event count hit
+      if (escalationPeriodPassed && withinInterval && eventCountExceeded) {
         escalate.set(true);
         return null;
       }
+      
       // Reset the info if we are outside the minimum interval
       if (!withinInterval) {
         return new EventInfo(now, now, 1);

@@ -39,25 +39,25 @@ public class TimeBasedEscalationTrigger implements EscalationTrigger {
   
   private final Supplier<Long> unixTimeNow;
   private final long minEventCount;
-  private final int minIntervalSecs;
+  private final int refreshIntervalSecs;
   private final int escalationPeriodSecs;
   
   private final Map<String, EventInfo> cache = new ConcurrentHashMap<>();
   private Predicate<Object> keyFilter = key -> true;
   
   public TimeBasedEscalationTrigger(Supplier<Long> unixTimeNow, long minEventCount,
-      int minIntervalSecs, int escalationPeriodSecs) {
+      int rereshIntervalSecs, int escalationPeriodSecs) {
     this.unixTimeNow = unixTimeNow;
     this.minEventCount = minEventCount;
-    this.minIntervalSecs = minIntervalSecs;
+    this.refreshIntervalSecs = rereshIntervalSecs;
     this.escalationPeriodSecs = escalationPeriodSecs;
   }
   
-  public TimeBasedEscalationTrigger(long minEventCount, int minIntervalSecs,
+  public TimeBasedEscalationTrigger(long minEventCount, int refreshIntervalSecs,
       int escalationPeriodSecs) {
     this.unixTimeNow = () -> System.currentTimeMillis() / 1000;
     this.minEventCount = minEventCount;
-    this.minIntervalSecs = minIntervalSecs;
+    this.refreshIntervalSecs = refreshIntervalSecs;
     this.escalationPeriodSecs = escalationPeriodSecs;
   }
   
@@ -87,7 +87,7 @@ public class TimeBasedEscalationTrigger implements EscalationTrigger {
       final long eventCount = eventInfo.eventCount + 1;
       final boolean escalationPeriodPassed =
           now - eventInfo.firstSeenUnixTime >= escalationPeriodSecs;
-      final boolean withinInterval = now - eventInfo.lastSeenUnixTime <= minIntervalSecs;
+      final boolean withinInterval = now - eventInfo.lastSeenUnixTime <= refreshIntervalSecs;
       final boolean eventCountExceeded = eventCount >= minEventCount;
       
       // Trigger escalation and reset event if enough time has passed and event count hit
@@ -96,7 +96,7 @@ public class TimeBasedEscalationTrigger implements EscalationTrigger {
         return null;
       }
       
-      // Reset the info if we are outside the minimum interval
+      // Reset the info if we are outside the refresh interval
       if (!withinInterval) {
         return new EventInfo(now, now, 1);
       }

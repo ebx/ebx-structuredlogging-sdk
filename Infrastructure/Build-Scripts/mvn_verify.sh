@@ -18,8 +18,15 @@ set -euo pipefail
 # limitations under the License.
 ##
 
-if [ "${CIRCLE_BRANCH}" == "${RELEASE_BRANCH}" ] || [ "${CIRCLE_BRANCH}" == "${DEV_BRANCH}" ]; then
-  printf "${GREEN_COLOUR}Building base branch $CIRCLE_BRANCH.${NO_COLOUR}\n"
+## For PR builds, perform maven verify. Exit with error if dev or master 
+## as these are handled separately in mvn_deploy.sh
+export JAVA_HOME="/usr"
+
+if [ "$CIRCLE_BRANCH" == "${DEV_BRANCH}" ] || [ "$CIRCLE_BRANCH" == "${RELEASE_BRANCH}" ]; then
+  printf "${RED_COLOUR}ERROR: PR builds should not be triggered by ${DEV_BRANCH} or ${RELEASE_BRANCH} branches.${NO_COLOUR}\n"
+  exit 1
 else
-  printf "${GREEN_COLOUR}Building PR #${CIRCLE_PULL_REQUEST##*/} '${CIRCLE_PULL_REQUEST}' from branch ${CIRCLE_BRANCH} (into ${DEV_BRANCH})${NO_COLOUR}\n"
+  printf "${GREEN_COLOUR}Performing a PR verify build on PR #${CIRCLE_PULL_REQUEST##*/}.${NO_COLOUR}\n"
+  java --version
+  mvn clean verify
 fi

@@ -8,3 +8,8 @@
 
 * Create EscalationLogger class to all for automatic escalation based off of log messages.
 * Create TimeBasedEscalationTrigger to use with EscalationLogger.
+
+## 2.0.0 (June 21, 2023)
+
+* Remove EscalationLogger and TimeBasedEscalationTrigger classes. These are now part of 
+  ebx-escalatedlogging-sdk.

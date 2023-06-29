@@ -17,7 +17,7 @@ structured arguments to be included in `ch.qos.logback.classic.net.SyslogAppende
 <dependency>
   <groupId>com.echobox</groupId>
   <artifactId>ebx-structuredlogging-sdk</artifactId>
-  <version>2.0.0</version>
+  <version>1.1.0</version>
 </dependency>
 ```
 
